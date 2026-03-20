@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:fitness_tracker/navigation.dart';
+import 'package:fitness_tracker/running.dart';
+import 'package:fitness_tracker/cycling.dart';
+import 'package:fitness_tracker/weights.dart';
 
 void main() {
   runApp(MaterialApp(
@@ -22,10 +26,30 @@ class _HomeState extends State<Home> {
   int currentPage = 0;
   
   final List<Map<String, dynamic>> workoutCategories = [
-    {"name": "Running", "icon": Icons.directions_run, "color": Colors.orangeAccent},
-    {"name": "Cycling", "icon": Icons.directions_bike, "color": Colors.blueAccent},
-    {"name": "Weights", "icon": Icons.fitness_center, "color": Colors.redAccent},
-    {"name": "Hiking", "icon": Icons.terrain, "color": Colors.brown},
+    {
+      "name": "Running", 
+      "icon": Icons.directions_run, 
+      "color": Colors.orangeAccent,
+      "page": const Running()
+    },
+    {
+      "name": "Cycling", 
+      "icon": Icons.directions_bike, 
+      "color": Colors.blueAccent,
+      "page": const Cycling()
+    },
+    {
+      "name": "Weights", 
+      "icon": Icons.fitness_center, 
+      "color": Colors.redAccent,
+      "page": const WeightWorkouts()
+    },
+    {
+      "name": "Hiking", 
+      "icon": Icons.terrain, 
+      "color": Colors.brown,
+      "page": null // Placeholder for future implementation
+    },
   ];
 
   @override
@@ -169,7 +193,18 @@ class _HomeState extends State<Home> {
                           border: Border.all(color: Colors.grey[800]!, width: 1),
                         ),
                         child: InkWell(
-                          onTap: () {},
+                          onTap: () {
+                            if (category['page'] != null) {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => category['page']),
+                              );
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text("${category['name']} coming soon!")),
+                              );
+                            }
+                          },
                           borderRadius: BorderRadius.circular(20),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -204,30 +239,8 @@ class _HomeState extends State<Home> {
           ),
         ),
       ),
-      bottomNavigationBar: NavigationBar(
-        onDestinationSelected: (int index) {
-          setState(() {
-            currentPage = index;
-          });
-        },
-        indicatorColor: Colors.orange.withOpacity(0.2),
-        selectedIndex: currentPage,
-        backgroundColor: Colors.grey[400],
-        destinations: const <Widget>[
-          NavigationDestination(
-              icon: Icon(Icons.home),
-              label: "Home"),
-          NavigationDestination(
-              icon: Icon(Icons.fitness_center_rounded),
-              label: "Workouts"),
-          NavigationDestination(
-              icon: Icon(Icons.directions_run),
-              label: "Run"),
-          NavigationDestination(
-              icon: Icon(Icons.directions_bike),
-              label: "Cycling"),
-        ],
-      ),
+
+      bottomNavigationBar: const Bottom_Navigation(),
     );
   }
 }
