@@ -3,6 +3,7 @@ import 'package:fitness_tracker/navigation.dart';
 import 'package:fitness_tracker/running.dart';
 import 'package:fitness_tracker/cycling.dart';
 import 'package:fitness_tracker/weights.dart';
+import 'package:fitness_tracker/add_exercise_screen.dart';
 
 void main() {
   runApp(MaterialApp(
@@ -240,6 +241,28 @@ class _HomeState extends State<Home> {
         ),
       ),
 
+      floatingActionButton: FloatingActionButton(
+      backgroundColor: Colors.orangeAccent,
+      child: const Icon(Icons.add),
+      onPressed: () async {
+
+        final result = await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const AddExerciseScreen(),
+          ),
+        );
+
+        if (result != null) {
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Exercise '${result['name']}' added!"),
+            ),
+          );
+        }
+      },
+    ),
       bottomNavigationBar: const Bottom_Navigation(),
     );
   }
