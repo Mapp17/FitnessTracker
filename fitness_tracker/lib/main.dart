@@ -1,55 +1,56 @@
 import 'package:flutter/material.dart';
-import 'package:fitness_tracker/navigation.dart';
-import 'package:fitness_tracker/running.dart';
-import 'package:fitness_tracker/cycling.dart';
-import 'package:fitness_tracker/weights.dart';
-import 'package:fitness_tracker/add_exercise_screen.dart';
+import 'package:fitness_tracker/app_router.dart';
 
 void main() {
-  runApp(MaterialApp(
-    debugShowCheckedModeBanner: false,
-    theme: ThemeData(
-      useMaterial3: true,
-      colorSchemeSeed: Colors.orange,
-    ),
-      home: const Home()
-  ));
+  runApp(const FitnessTrackerApp());
 }
 
-class Home extends StatefulWidget {
-  const Home({super.key});
+class FitnessTrackerApp extends StatelessWidget {
+  const FitnessTrackerApp({super.key});
 
   @override
-  State<Home> createState() => _HomeState();
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Fitness Tracker',
+      theme: ThemeData(
+        useMaterial3: true,
+        brightness: Brightness.dark,
+        colorScheme: ColorScheme.dark(
+          primary: Colors.orangeAccent,
+          secondary: Colors.orangeAccent,
+          surface: Colors.grey[850]!,
+          background: Colors.grey[900]!,
+        ),
+      ),
+      home: const Home(),
+    );
+  }
 }
 
-class _HomeState extends State<Home> {
-  int currentPage = 0;
-  
-  final List<Map<String, dynamic>> workoutCategories = [
+class Home extends StatelessWidget {
+  const Home({super.key});
+
+  final List<Map<String, dynamic>> workoutCategories = const [
     {
-      "name": "Running", 
-      "icon": Icons.directions_run, 
-      "color": Colors.orangeAccent,
-      "page": const Running()
-    },
-    {
-      "name": "Cycling", 
-      "icon": Icons.directions_bike, 
-      "color": Colors.blueAccent,
-      "page": const Cycling()
-    },
-    {
-      "name": "Weights", 
-      "icon": Icons.fitness_center, 
+      "name": "Cardio",
+      "icon": Icons.favorite,
       "color": Colors.redAccent,
-      "page": const WeightWorkouts()
     },
     {
-      "name": "Hiking", 
-      "icon": Icons.terrain, 
-      "color": Colors.brown,
-      "page": null // Placeholder for future implementation
+      "name": "Strength",
+      "icon": Icons.fitness_center,
+      "color": Colors.blueAccent,
+    },
+    {
+      "name": "Flexibility",
+      "icon": Icons.accessibility_new,
+      "color": Colors.greenAccent,
+    },
+    {
+      "name": "HIIT",
+      "icon": Icons.bolt,
+      "color": Colors.orangeAccent,
     },
   ];
 
@@ -63,29 +64,46 @@ class _HomeState extends State<Home> {
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 24.0,
-            color: Colors.black87,
+            color: Colors.white,
           ),
         ),
-        backgroundColor: Colors.grey[400],
+        backgroundColor: Colors.black,
         centerTitle: true,
         elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.fitness_center, color: Colors.orangeAccent),
+            onPressed: () {
+              context.pushRouteNoArgs(AppRoute.addExercise);
+            },
+            tooltip: 'Add Exercise',
+          ),
+          IconButton(
+            icon: const Icon(Icons.calculate, color: Colors.orangeAccent),
+            onPressed: () {
+              context.pushRouteNoArgs(AppRoute.bmiCalculator);
+            },
+            tooltip: 'BMI Calculator',
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
+            children: [
               Text(
-                "Hello, Mapps!",
+                "Hello, Athlete!",
                 style: TextStyle(
                   color: Colors.grey[400],
                   fontStyle: FontStyle.italic,
                   fontSize: 28,
+                  fontWeight: FontWeight.w300,
                 ),
               ),
               const SizedBox(height: 20.0),
-              
+
               // Featured Banner
               Stack(
                 children: [
@@ -144,7 +162,16 @@ class _HomeState extends State<Home> {
                           borderRadius: BorderRadius.circular(16),
                         ),
                       ),
-                      onPressed: () {},
+                      onPressed: () {
+                        context.pushRoute(
+                          AppRoute.exerciseList,
+                          ExerciseListArgs(
+                            categoryName: "HIIT",
+                            themeColor: Colors.orangeAccent,
+                            iconData: Icons.bolt,
+                          ),
+                        );
+                      },
                       child: const Text(
                         "Start",
                         style: TextStyle(fontWeight: FontWeight.bold),
@@ -154,7 +181,7 @@ class _HomeState extends State<Home> {
                 ],
               ),
               const SizedBox(height: 30.0),
-              
+
               Text(
                 "Workout Categories",
                 style: TextStyle(
@@ -164,7 +191,6 @@ class _HomeState extends State<Home> {
                 ),
               ),
               const SizedBox(height: 16.0),
-              
 
               LayoutBuilder(
                 builder: (context, constraints) {
@@ -187,7 +213,11 @@ class _HomeState extends State<Home> {
                     itemCount: workoutCategories.length,
                     itemBuilder: (context, index) {
                       final category = workoutCategories[index];
-                      return Container(
+                      final categoryName = category["name"] as String;
+                      final icon = category["icon"] as IconData;
+                      final color = category["color"] as Color;
+
+                      return Ink(
                         decoration: BoxDecoration(
                           color: Colors.grey[850],
                           borderRadius: BorderRadius.circular(20),
@@ -195,16 +225,14 @@ class _HomeState extends State<Home> {
                         ),
                         child: InkWell(
                           onTap: () {
-                            if (category['page'] != null) {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => category['page']),
-                              );
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text("${category['name']} coming soon!")),
-                              );
-                            }
+                            context.pushRoute(
+                              AppRoute.exerciseList,
+                              ExerciseListArgs(
+                                categoryName: categoryName,
+                                themeColor: color,
+                                iconData: icon,
+                              ),
+                            );
                           },
                           borderRadius: BorderRadius.circular(20),
                           child: Column(
@@ -212,16 +240,16 @@ class _HomeState extends State<Home> {
                             children: [
                               CircleAvatar(
                                 radius: 25,
-                                backgroundColor: (category['color'] as Color).withOpacity(0.2),
+                                backgroundColor: color.withOpacity(0.2),
                                 child: Icon(
-                                  category['icon'],
-                                  color: category['color'],
+                                  icon,
+                                  color: color,
                                   size: 28,
                                 ),
                               ),
                               const SizedBox(height: 12),
                               Text(
-                                category['name'],
+                                categoryName,
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 16,
@@ -240,30 +268,6 @@ class _HomeState extends State<Home> {
           ),
         ),
       ),
-
-      floatingActionButton: FloatingActionButton(
-      backgroundColor: Colors.orangeAccent,
-      child: const Icon(Icons.add),
-      onPressed: () async {
-
-        final result = await Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const AddExerciseScreen(),
-          ),
-        );
-
-        if (result != null) {
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text("Exercise '${result['name']}' added!"),
-            ),
-          );
-        }
-      },
-    ),
-      bottomNavigationBar: const Bottom_Navigation(),
     );
   }
 }
