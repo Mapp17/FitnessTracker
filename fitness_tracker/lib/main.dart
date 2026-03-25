@@ -1,8 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:fitness_tracker/app_router.dart';
+import 'package:fitness_tracker/providers/routine_provider.dart';
+import 'package:fitness_tracker/providers/exercise_provider.dart';
 
 void main() {
-  runApp(const FitnessTrackerApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => RoutineProvider()),
+        ChangeNotifierProvider(create: (_) => ExerciseProvider()),
+      ],
+      child: const FitnessTrackerApp(),
+    ),
+  );
 }
 
 class FitnessTrackerApp extends StatelessWidget {
@@ -20,7 +31,6 @@ class FitnessTrackerApp extends StatelessWidget {
           primary: Colors.orangeAccent,
           secondary: Colors.orangeAccent,
           surface: Colors.grey[850]!,
-          background: Colors.grey[900]!,
         ),
       ),
       home: const Home(),
@@ -31,31 +41,11 @@ class FitnessTrackerApp extends StatelessWidget {
 class Home extends StatelessWidget {
   const Home({super.key});
 
-  final List<Map<String, dynamic>> workoutCategories = const [
-    {
-      "name": "Cardio",
-      "icon": Icons.favorite,
-      "color": Colors.redAccent,
-    },
-    {
-      "name": "Strength",
-      "icon": Icons.fitness_center,
-      "color": Colors.blueAccent,
-    },
-    {
-      "name": "Flexibility",
-      "icon": Icons.accessibility_new,
-      "color": Colors.greenAccent,
-    },
-    {
-      "name": "HIIT",
-      "icon": Icons.bolt,
-      "color": Colors.orangeAccent,
-    },
-  ];
-
   @override
   Widget build(BuildContext context) {
+    // Access categories from ExerciseProvider
+    final categories = context.watch<ExerciseProvider>().categories;
+
     return Scaffold(
       backgroundColor: Colors.grey[900],
       appBar: AppBar(
@@ -70,22 +60,6 @@ class Home extends StatelessWidget {
         backgroundColor: Colors.black,
         centerTitle: true,
         elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.fitness_center, color: Colors.orangeAccent),
-            onPressed: () {
-              context.pushRouteNoArgs(AppRoute.addExercise);
-            },
-            tooltip: 'Add Exercise',
-          ),
-          IconButton(
-            icon: const Icon(Icons.calculate, color: Colors.orangeAccent),
-            onPressed: () {
-              context.pushRouteNoArgs(AppRoute.bmiCalculator);
-            },
-            tooltip: 'BMI Calculator',
-          ),
-        ],
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -94,7 +68,7 @@ class Home extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Hello, Athlete!",
+                "Hello, Mapps!",
                 style: TextStyle(
                   color: Colors.grey[400],
                   fontStyle: FontStyle.italic,
@@ -119,7 +93,7 @@ class Home extends StatelessWidget {
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.orange.withOpacity(0.3),
+                          color: Colors.orange.withAlpha(77),
                           blurRadius: 10,
                           offset: const Offset(0, 5),
                         ),
@@ -182,13 +156,22 @@ class Home extends StatelessWidget {
               ),
               const SizedBox(height: 30.0),
 
-              Text(
-                "Workout Categories",
-                style: TextStyle(
-                  color: Colors.grey[300],
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Workout Categories",
+                    style: TextStyle(
+                      color: Colors.grey[300],
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () => context.pushRouteNoArgs(AppRoute.browseExercises),
+                    child: const Text("View All"),
+                  ),
+                ],
               ),
               const SizedBox(height: 16.0),
 
@@ -210,12 +193,9 @@ class Home extends StatelessWidget {
                       mainAxisSpacing: 16.0,
                       childAspectRatio: 1.1,
                     ),
-                    itemCount: workoutCategories.length,
+                    itemCount: categories.length,
                     itemBuilder: (context, index) {
-                      final category = workoutCategories[index];
-                      final categoryName = category["name"] as String;
-                      final icon = category["icon"] as IconData;
-                      final color = category["color"] as Color;
+                      final category = categories[index];
 
                       return Ink(
                         decoration: BoxDecoration(
@@ -228,9 +208,9 @@ class Home extends StatelessWidget {
                             context.pushRoute(
                               AppRoute.exerciseList,
                               ExerciseListArgs(
-                                categoryName: categoryName,
-                                themeColor: color,
-                                iconData: icon,
+                                categoryName: category.name,
+                                themeColor: category.color,
+                                iconData: category.icon,
                               ),
                             );
                           },
@@ -240,16 +220,16 @@ class Home extends StatelessWidget {
                             children: [
                               CircleAvatar(
                                 radius: 25,
-                                backgroundColor: color.withOpacity(0.2),
+                                backgroundColor: category.color.withAlpha(51),
                                 child: Icon(
-                                  icon,
-                                  color: color,
+                                  category.icon,
+                                  color: category.color,
                                   size: 28,
                                 ),
                               ),
                               const SizedBox(height: 12),
                               Text(
-                                categoryName,
+                                category.name,
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 16,
@@ -267,6 +247,39 @@ class Home extends StatelessWidget {
             ],
           ),
         ),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: Colors.black,
+        selectedItemColor: Colors.orangeAccent,
+        unselectedItemColor: Colors.grey,
+        currentIndex: 0,
+        type: BottomNavigationBarType.fixed,
+        onTap: (index) {
+          switch (index) {
+            case 0:
+              // Already at Home
+              break;
+            case 1:
+              context.pushRouteNoArgs(AppRoute.browseExercises);
+              break;
+            case 2:
+              context.pushRouteNoArgs(AppRoute.addExercise);
+              break;
+            case 3:
+              context.pushRouteNoArgs(AppRoute.routineSummary);
+              break;
+            case 4:
+              context.pushRouteNoArgs(AppRoute.bmiCalculator);
+              break;
+          }
+        },
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Browse'),
+          BottomNavigationBarItem(icon: Icon(Icons.add_box), label: 'Add'),
+          BottomNavigationBarItem(icon: Icon(Icons.fitness_center), label: 'Routine'),
+          BottomNavigationBarItem(icon: Icon(Icons.calculate), label: 'BMI'),
+        ],
       ),
     );
   }
