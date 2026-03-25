@@ -3,6 +3,8 @@ import 'package:fitness_tracker/exercise_list_screen.dart';
 import 'package:fitness_tracker/exercise_detail_screen.dart';
 import 'package:fitness_tracker/bmi_calculator.dart';
 import 'package:fitness_tracker/add_exercise_screen.dart';
+import 'package:fitness_tracker/screens/exercise_browse_screen.dart';
+import 'package:fitness_tracker/screens/routine_summary_screen.dart';
 import 'package:fitness_tracker/main.dart';
 
 // ============================================================
@@ -46,7 +48,9 @@ enum AppRoute<T> {
   exerciseList,
   exerciseDetail,
   bmiCalculator,
-  addExercise;
+  addExercise,
+  browseExercises,
+  routineSummary;
 
   MaterialPageRoute route(T args) {
     switch (this) {
@@ -86,6 +90,16 @@ enum AppRoute<T> {
         return MaterialPageRoute(
           builder: (_) => const AddExerciseScreen(),
           settings: const RouteSettings(name: 'addExercise'),
+        );
+      case AppRoute.browseExercises:
+        return MaterialPageRoute(
+          builder: (_) => const ExerciseBrowseScreen(),
+          settings: const RouteSettings(name: 'browseExercises'),
+        );
+      case AppRoute.routineSummary:
+        return MaterialPageRoute(
+          builder: (_) => const RoutineSummaryScreen(),
+          settings: const RouteSettings(name: 'routineSummary'),
         );
     }
   }
