@@ -19,7 +19,7 @@ class UserProfile {
 
   factory UserProfile.defaults() {
     return const UserProfile(
-      name: 'Athlete',
+      name: 'Mapps',
       age: 25,
       weightGoal: 75.0,
       weightUnit: 'kg',
@@ -56,7 +56,7 @@ class UserProfile {
   };
 
   factory UserProfile.fromJson(Map<String, dynamic> json) {
-    // Validation & Clamping Logic
+
     int timer = (json['restTimerSeconds'] as int? ?? 60).clamp(15, 300);
     String unit = (json['weightUnit'] == 'lbs') ? 'lbs' : 'kg';
 

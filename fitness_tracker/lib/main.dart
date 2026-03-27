@@ -5,22 +5,22 @@ import 'data/profile_repo.dart';
 import 'data/routine_repository.dart';
 import 'domain/profile_provider.dart';
 import 'domain/routine_provider.dart';
-import 'presentation/screens/home_screen.dart';
+import 'domain/exercise_provider.dart';
+import 'presentation/screens/dashboard_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final prefs = await SharedPreferences.getInstance();
 
-  // 1. Create Repositories (Data Layer)
   final profileRepo = ProfileRepository(prefs);
   final routineRepo = RoutineRepository(prefs);
 
   runApp(
     MultiProvider(
       providers: [
-        // 2. Inject Repositories into Providers (Domain Layer)
         ChangeNotifierProvider(create: (_) => ProfileProvider(profileRepo)),
         ChangeNotifierProvider(create: (_) => RoutineProvider(routineRepo)),
+        ChangeNotifierProvider(create: (_) => ExerciseProvider()),
       ],
       child: const FitnessTrackerApp(),
     ),
@@ -33,11 +33,19 @@ class FitnessTrackerApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: ThemeData.dark().copyWith(
-        primaryColor: Colors.orangeAccent,
+      debugShowCheckedModeBanner: false,
+      title: 'Fitness Tracker',
+      theme: ThemeData(
+        useMaterial3: true,
+        brightness: Brightness.dark,
+        colorScheme: ColorScheme.dark(
+          primary: Colors.orangeAccent,
+          secondary: Colors.orangeAccent,
+          surface: Colors.grey[850]!,
+        ),
         scaffoldBackgroundColor: const Color(0xFF121212),
       ),
-      home: const HomeScreen(),
+      home: const DashboardScreen(),
     );
   }
 }
