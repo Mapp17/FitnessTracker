@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:fitness_tracker/exercise_list_screen.dart';
 import 'package:fitness_tracker/exercise_detail_screen.dart';
 import 'package:fitness_tracker/bmi_calculator.dart';
-import 'package:fitness_tracker/add_exercise_screen.dart';
-import 'package:fitness_tracker/screens/exercise_browse_screen.dart';
-import 'package:fitness_tracker/screens/routine_summary_screen.dart';
+import 'package:fitness_tracker/presentation/screens/add_exercise_screen.dart';
+import 'package:fitness_tracker/presentation/screens/exercise_browse_screen.dart';
+import 'package:fitness_tracker/presentation/screens/routine_summary_screen.dart';
 import 'package:fitness_tracker/main.dart';
 
 // ============================================================

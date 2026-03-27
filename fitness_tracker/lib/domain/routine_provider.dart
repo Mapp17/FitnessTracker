@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
 import '../models/exercise.dart';
+import '../data/routine_repository.dart';
 
 class RoutineProvider extends ChangeNotifier {
-  final List<Exercise> _routine = [];
+  final RoutineRepository _repository;
+  List<Exercise> _routine = [];
+
+  RoutineProvider(this._repository) {
+    _routine = _repository.loadRoutine();
+  }
 
   List<Exercise> get routine => List.unmodifiable(_routine);
 
@@ -25,17 +31,22 @@ class RoutineProvider extends ChangeNotifier {
   void addExercise(Exercise exercise) {
     if (!isInRoutine(exercise.id)) {
       _routine.add(exercise);
-      notifyListeners();
+      _saveAndNotify();
     }
   }
 
   void removeExercise(String id) {
     _routine.removeWhere((item) => item.id == id);
-    notifyListeners();
+    _saveAndNotify();
   }
 
   void clearRoutine() {
     _routine.clear();
+    _saveAndNotify();
+  }
+
+  void _saveAndNotify() {
     notifyListeners();
+    _repository.saveRoutine(_routine);
   }
 }
