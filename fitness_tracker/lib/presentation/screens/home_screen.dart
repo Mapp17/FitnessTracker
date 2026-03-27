@@ -1,45 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:fitness_tracker/app_router.dart';
-import 'package:fitness_tracker/providers/routine_provider.dart';
-import 'package:fitness_tracker/providers/exercise_provider.dart';
+import '../../app_router.dart';
+import '../../providers//routine_provider.dart';
+import '../../providers//exercise_provider.dart';
 
-void main() {
-  runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => RoutineProvider()),
-        ChangeNotifierProvider(create: (_) => ExerciseProvider()),
-      ],
-      child: const FitnessTrackerApp(),
-    ),
-  );
-}
-
-class FitnessTrackerApp extends StatelessWidget {
-  const FitnessTrackerApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Fitness Tracker',
-      theme: ThemeData(
-        useMaterial3: true,
-        brightness: Brightness.dark,
-        colorScheme: ColorScheme.dark(
-          primary: Colors.orangeAccent,
-          secondary: Colors.orangeAccent,
-          surface: Colors.grey[850]!,
-        ),
-      ),
-      home: const Home(),
-    );
-  }
-}
-
-class Home extends StatelessWidget {
-  const Home({super.key});
+class HomeScreen extends StatelessWidget {
+  const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
