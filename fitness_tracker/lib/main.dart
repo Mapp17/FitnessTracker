@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fitness_tracker/app_router.dart';
-import 'package:fitness_tracker/providers/routine_provider.dart';
-import 'package:fitness_tracker/providers/exercise_provider.dart';
+import 'package:fitness_tracker/domain/routine_provider.dart';
+import 'package:fitness_tracker/domain/exercise_provider.dart';
 
 void main() {
   runApp(

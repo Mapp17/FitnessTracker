@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../providers/routine_provider.dart';
+import '../domain/routine_provider.dart';
 import '../app_router.dart';
 
 class RoutineSummaryScreen extends StatelessWidget {

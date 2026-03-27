@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/exercise.dart';
-import '../providers/routine_provider.dart';
+import '../domain/routine_provider.dart';
 
 class ExerciseBrowseScreen extends StatelessWidget {
   const ExerciseBrowseScreen({super.key});

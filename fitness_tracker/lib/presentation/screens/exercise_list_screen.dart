@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../app_router.dart';
-import '../../providers//exercise_provider.dart';
+import '../../domain/exercise_provider.dart';
 
 class ExerciseListScreen extends StatelessWidget {
   final String categoryName;
