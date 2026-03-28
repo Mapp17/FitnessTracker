@@ -1,11 +1,13 @@
+import 'package:fitness_tracker/presentation/screens/home_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:fitness_tracker/exercise_list_screen.dart';
+import 'package:fitness_tracker/presentation/screens/exercise_list_screen.dart';
 import 'package:fitness_tracker/exercise_detail_screen.dart';
 import 'package:fitness_tracker/bmi_calculator.dart';
-import 'package:fitness_tracker/add_exercise_screen.dart';
-import 'package:fitness_tracker/screens/exercise_browse_screen.dart';
-import 'package:fitness_tracker/screens/routine_summary_screen.dart';
-import 'package:fitness_tracker/main.dart';
+import 'package:fitness_tracker/presentation/screens/add_exercise_screen.dart';
+import 'package:fitness_tracker/presentation/screens/exercise_browse_screen.dart';
+import 'package:fitness_tracker/presentation/screens/routine_summary_screen.dart';
+import 'package:fitness_tracker/presentation/screens/dashboard_screen.dart';
+import 'package:fitness_tracker/presentation/screens/main_navigation_screen.dart';
 
 // ============================================================
 // TYPE-SAFE ARGUMENT CLASSES
@@ -44,7 +46,9 @@ class ExerciseDetailArgs {
 // ============================================================
 
 enum AppRoute<T> {
+  root,
   home,
+  dashboard,
   exerciseList,
   exerciseDetail,
   bmiCalculator,
@@ -54,10 +58,20 @@ enum AppRoute<T> {
 
   MaterialPageRoute route(T args) {
     switch (this) {
+      case AppRoute.root:
+        return MaterialPageRoute(
+          builder: (_) => const MainNavigationScreen(),
+          settings: const RouteSettings(name: 'root'),
+        );
       case AppRoute.home:
         return MaterialPageRoute(
-          builder: (_) => const Home(),
+          builder: (_) => const HomeScreen(),
           settings: const RouteSettings(name: 'home'),
+        );
+      case AppRoute.dashboard:
+        return MaterialPageRoute(
+          builder: (_) => const DashboardScreen(),
+          settings: const RouteSettings(name: 'dashboard'),
         );
       case AppRoute.exerciseList:
         final typedArgs = args as ExerciseListArgs;
