@@ -7,7 +7,7 @@ import 'package:fitness_tracker/presentation/screens/add_exercise_screen.dart';
 import 'package:fitness_tracker/presentation/screens/exercise_browse_screen.dart';
 import 'package:fitness_tracker/presentation/screens/routine_summary_screen.dart';
 import 'package:fitness_tracker/presentation/screens/dashboard_screen.dart';
-import 'package:fitness_tracker/main.dart';
+import 'package:fitness_tracker/presentation/screens/main_navigation_screen.dart';
 
 // ============================================================
 // TYPE-SAFE ARGUMENT CLASSES
@@ -46,6 +46,7 @@ class ExerciseDetailArgs {
 // ============================================================
 
 enum AppRoute<T> {
+  root,
   home,
   dashboard,
   exerciseList,
@@ -57,6 +58,11 @@ enum AppRoute<T> {
 
   MaterialPageRoute route(T args) {
     switch (this) {
+      case AppRoute.root:
+        return MaterialPageRoute(
+          builder: (_) => const MainNavigationScreen(),
+          settings: const RouteSettings(name: 'root'),
+        );
       case AppRoute.home:
         return MaterialPageRoute(
           builder: (_) => const HomeScreen(),

@@ -6,7 +6,7 @@ import 'data/routine_repository.dart';
 import 'domain/profile_provider.dart';
 import 'domain/routine_provider.dart';
 import 'domain/exercise_provider.dart';
-import 'presentation/screens/dashboard_screen.dart';
+import 'presentation/screens/main_navigation_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -45,7 +45,7 @@ class FitnessTrackerApp extends StatelessWidget {
         ),
         scaffoldBackgroundColor: const Color(0xFF121212),
       ),
-      home: const DashboardScreen(),
+      home: const MainNavigationScreen(),
     );
   }
 }

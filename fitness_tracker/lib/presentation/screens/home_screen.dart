@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../app_router.dart';
 import '../../domain/routine_provider.dart';
 import '../../domain/exercise_provider.dart';
+import '../../domain/profile_provider.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -11,6 +12,8 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     // Access categories from ExerciseProvider
     final categories = context.watch<ExerciseProvider>().categories;
+    // Access profile from ProfileProvider
+    final profile = context.watch<ProfileProvider>().profile;
 
     return Scaffold(
       backgroundColor: Colors.grey[900],
@@ -34,7 +37,7 @@ class HomeScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Hello, Athlete!",
+                "Hello, ${profile.name}!",
                 style: TextStyle(
                   color: Colors.grey[400],
                   fontStyle: FontStyle.italic,
@@ -213,39 +216,6 @@ class HomeScreen extends StatelessWidget {
             ],
           ),
         ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Colors.black,
-        selectedItemColor: Colors.orangeAccent,
-        unselectedItemColor: Colors.grey,
-        currentIndex: 0,
-        type: BottomNavigationBarType.fixed,
-        onTap: (index) {
-          switch (index) {
-            case 0:
-              // Already at Home
-              break;
-            case 1:
-              context.pushRouteNoArgs(AppRoute.browseExercises);
-              break;
-            case 2:
-              context.pushRouteNoArgs(AppRoute.addExercise);
-              break;
-            case 3:
-              context.pushRouteNoArgs(AppRoute.routineSummary);
-              break;
-            case 4:
-              context.pushRouteNoArgs(AppRoute.bmiCalculator);
-              break;
-          }
-        },
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Browse'),
-          BottomNavigationBarItem(icon: Icon(Icons.add_box), label: 'Add'),
-          BottomNavigationBarItem(icon: Icon(Icons.fitness_center), label: 'Routine'),
-          BottomNavigationBarItem(icon: Icon(Icons.calculate), label: 'BMI'),
-        ],
       ),
     );
   }
