@@ -10,30 +10,48 @@ class ExerciseSearchProvider extends ChangeNotifier {
   List<ApiExercise> _searchResults = [];
   bool _isLoading = false;
   String? _errorMessage;
-  String _lastQuery = '';
+  
+  // Last query params for retry
+  String _lastMuscle = '';
+  String _lastType = '';
+  String _lastDifficulty = '';
+  String _lastName = '';
 
   // Getters
   List<ApiExercise> get searchResults => _searchResults;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
-  String get lastQuery => _lastQuery;
+  String get lastQuery => _lastName; // For generic empty state check
   bool get hasResults => _searchResults.isNotEmpty;
   bool get hasError => _errorMessage != null;
 
-  /// Searches for exercises by muscle group.
-  Future<void> searchExercises(String muscle) async {
-    final query = muscle.trim().toLowerCase();
+  /// Searches for exercises with multiple filters.
+  Future<void> searchExercises({
+    String? muscle,
+    String? type,
+    String? difficulty,
+    String? name,
+  }) async {
+    // Basic validation: at least one filter should be active if we want to avoid broad searches
+    // but the API allows it. We'll follow the requirement of trimming and checking empty for name.
+    final nameQuery = name?.trim().toLowerCase() ?? '';
     
-    // Return early if query is empty
-    if (query.isEmpty) return;
+    _lastMuscle = muscle ?? '';
+    _lastType = type ?? '';
+    _lastDifficulty = difficulty ?? '';
+    _lastName = nameQuery;
 
-    _lastQuery = query;
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      _searchResults = await _apiRepository.searchExercises(query);
+      _searchResults = await _apiRepository.searchExercises(
+        muscle: _lastMuscle,
+        type: _lastType,
+        difficulty: _lastDifficulty,
+        name: _lastName,
+      );
     } catch (e) {
       _errorMessage = e.toString().replaceFirst('Exception: ', '');
       _searchResults = [];
@@ -43,19 +61,25 @@ class ExerciseSearchProvider extends ChangeNotifier {
     }
   }
 
-  /// Retries the last search.
+  /// Retries the last performed search.
   Future<void> retry() async {
-    if (_lastQuery.isNotEmpty) {
-      await searchExercises(_lastQuery);
-    }
+    await searchExercises(
+      muscle: _lastMuscle,
+      type: _lastType,
+      difficulty: _lastDifficulty,
+      name: _lastName,
+    );
   }
 
-  /// Resets the search to defaults.
+  /// Resets the search state to defaults.
   void clearResults() {
     _searchResults = [];
     _isLoading = false;
     _errorMessage = null;
-    _lastQuery = '';
+    _lastMuscle = '';
+    _lastType = '';
+    _lastDifficulty = '';
+    _lastName = '';
     notifyListeners();
   }
 }

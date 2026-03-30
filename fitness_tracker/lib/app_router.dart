@@ -8,6 +8,7 @@ import 'package:fitness_tracker/presentation/screens/exercise_browse_screen.dart
 import 'package:fitness_tracker/presentation/screens/routine_summary_screen.dart';
 import 'package:fitness_tracker/presentation/screens/dashboard_screen.dart';
 import 'package:fitness_tracker/presentation/screens/main_navigation_screen.dart';
+import 'package:fitness_tracker/presentation/screens/exercise_search_screen.dart';
 
 // ============================================================
 // TYPE-SAFE ARGUMENT CLASSES
@@ -54,7 +55,8 @@ enum AppRoute<T> {
   bmiCalculator,
   addExercise,
   browseExercises,
-  routineSummary;
+  routineSummary,
+  exerciseSearch;
 
   MaterialPageRoute route(T args) {
     switch (this) {
@@ -114,6 +116,11 @@ enum AppRoute<T> {
         return MaterialPageRoute(
           builder: (_) => const RoutineSummaryScreen(),
           settings: const RouteSettings(name: 'routineSummary'),
+        );
+      case AppRoute.exerciseSearch:
+        return MaterialPageRoute(
+          builder: (_) => const ExerciseSearchScreen(),
+          settings: const RouteSettings(name: 'exerciseSearch'),
         );
     }
   }

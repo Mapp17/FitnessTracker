@@ -2,33 +2,38 @@ import 'package:dio/dio.dart';
 import 'package:fitness_tracker/data/models/api_exercise.dart';
 
 class ExerciseApiRepository {
-  // 1
   final Dio _dio = Dio();
 
-  //2
   static const String _baseUrl = 'https://api.api-ninjas.com/v1/exercises';
   static const String _apiKey = '4PVRn9qboLZas3nTVuGsUsZdVAoojo08khZM5c7O';
 
-
-  Future<List<ApiExercise>> searchExercises(String muscle) async {
+  /// Updated search method to support multiple filters.
+  Future<List<ApiExercise>> searchExercises({
+    String? muscle,
+    String? type,
+    String? difficulty,
+    String? name,
+  }) async {
     try {
-      // 3
+      // Build query parameters dynamically
+      final Map<String, dynamic> queryParams = {};
+      if (muscle != null && muscle.isNotEmpty) queryParams['muscle'] = muscle;
+      if (type != null && type.isNotEmpty) queryParams['type'] = type;
+      if (difficulty != null && difficulty.isNotEmpty) queryParams['difficulty'] = difficulty;
+      if (name != null && name.isNotEmpty) queryParams['name'] = name;
+
       final response = await _dio.get(
         _baseUrl,
-        queryParameters: {'muscle': muscle},
+        queryParameters: queryParams,
         options: Options(
           headers: {'X-Api-Key': _apiKey},
         ),
       );
 
-      // 4
       final List<dynamic> data = response.data;
-      
-      // 5
       return data.map((json) => ApiExercise.fromJson(json as Map<String, dynamic>)).toList();
       
     } on DioException catch (e) {
-      // 6
       if (e.type == DioExceptionType.connectionTimeout || 
           e.type == DioExceptionType.receiveTimeout) {
         throw Exception('Connection timed out. Check your internet.');
