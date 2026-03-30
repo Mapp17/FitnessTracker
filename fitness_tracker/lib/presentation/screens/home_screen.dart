@@ -29,6 +29,13 @@ class HomeScreen extends StatelessWidget {
         backgroundColor: Colors.black,
         centerTitle: true,
         elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.search, color: Colors.orangeAccent),
+            onPressed: () => context.pushRouteNoArgs(AppRoute.exerciseSearch),
+            tooltip: 'Search Online Exercises',
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Padding(

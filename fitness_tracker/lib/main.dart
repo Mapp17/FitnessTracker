@@ -3,9 +3,11 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'data/profile_repo.dart';
 import 'data/routine_repository.dart';
+import 'data/exercise_api_repository.dart';
 import 'domain/profile_provider.dart';
 import 'domain/routine_provider.dart';
 import 'domain/exercise_provider.dart';
+import 'domain/exercise_search_provider.dart';
 import 'presentation/screens/main_navigation_screen.dart';
 
 void main() async {
@@ -14,6 +16,7 @@ void main() async {
 
   final profileRepo = ProfileRepository(prefs);
   final routineRepo = RoutineRepository(prefs);
+  final apiRepository = ExerciseApiRepository();
 
   runApp(
     MultiProvider(
@@ -21,6 +24,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => ProfileProvider(profileRepo)),
         ChangeNotifierProvider(create: (_) => RoutineProvider(routineRepo)),
         ChangeNotifierProvider(create: (_) => ExerciseProvider()),
+        ChangeNotifierProvider(create: (_) => ExerciseSearchProvider(apiRepository)),
       ],
       child: const FitnessTrackerApp(),
     ),
