@@ -4,10 +4,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'data/profile_repo.dart';
 import 'data/routine_repository.dart';
 import 'data/exercise_api_repository.dart';
+import 'data/location_service.dart';
 import 'domain/profile_provider.dart';
 import 'domain/routine_provider.dart';
 import 'domain/exercise_provider.dart';
 import 'domain/exercise_search_provider.dart';
+import 'domain/workout_tracking_provider.dart';
 import 'presentation/screens/main_navigation_screen.dart';
 
 void main() async {
@@ -17,6 +19,7 @@ void main() async {
   final profileRepo = ProfileRepository(prefs);
   final routineRepo = RoutineRepository(prefs);
   final apiRepository = ExerciseApiRepository();
+  final locationService = LocationService();
 
   runApp(
     MultiProvider(
@@ -25,6 +28,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => RoutineProvider(routineRepo)),
         ChangeNotifierProvider(create: (_) => ExerciseProvider()),
         ChangeNotifierProvider(create: (_) => ExerciseSearchProvider(apiRepository)),
+        ChangeNotifierProvider(create: (_) => WorkoutTrackingProvider(locationService)),
       ],
       child: const FitnessTrackerApp(),
     ),
