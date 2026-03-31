@@ -132,6 +132,43 @@ class HomeScreen extends StatelessWidget {
               ),
               const SizedBox(height: 30.0),
 
+              Ink(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  gradient: const LinearGradient(
+                    colors: [Colors.orangeAccent, Colors.amber],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(20),
+                  onTap: () {
+                    context.pushRouteNoArgs(AppRoute.outdoorWorkout);
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Row(
+                      children: const [
+                        Icon(Icons.directions_run, color: Colors.white, size: 32),
+                        SizedBox(width: 16),
+                        Expanded(
+                          child: Text(
+                            "Outdoor Workout\nTrack your run with GPS",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        Icon(Icons.arrow_forward_ios, color: Colors.white),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [

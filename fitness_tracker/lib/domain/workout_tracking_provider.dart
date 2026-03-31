@@ -11,42 +11,62 @@ class WorkoutTrackingProvider extends ChangeNotifier {
   WorkoutTrackingProvider(this._locationService);
 
   WorkoutPhase _workoutPhase = WorkoutPhase.idle;
+
   Position? _startPosition;
   Position? _endPosition;
   Position? _currentPosition;
-  double _distanceMeters = 0.0;
+
   DateTime? _startTime;
   int _elapsedSeconds = 0;
+
+  double _distanceMeters = 0.0;
+
   String? _errorMessage;
   bool _isLoadingLocation = false;
-  Timer? _workoutTimer;
 
-  // Getters
+  Timer? _workoutTimer;
+  Timer? _routeTimer;
+
+  List<Position> _routePoints = [];
+
+  // GETTERS
+
   WorkoutPhase get workoutPhase => _workoutPhase;
   Position? get startPosition => _startPosition;
   Position? get endPosition => _endPosition;
   Position? get currentPosition => _currentPosition;
+
   double get distanceMeters => _distanceMeters;
   DateTime? get startTime => _startTime;
   int get elapsedSeconds => _elapsedSeconds;
+
   String? get errorMessage => _errorMessage;
   bool get isLoadingLocation => _isLoadingLocation;
 
-  // Computed Getters
+  List<Position> get routePoints => _routePoints;
+  int get gpsPointsCount => _routePoints.length;
+
+  bool get canFinish => _workoutPhase == WorkoutPhase.active;
+
+  // FORMATTED VALUES
+
   String get formattedTime {
     final duration = Duration(seconds: _elapsedSeconds);
     String twoDigits(int n) => n.toString().padLeft(2, '0');
     final hours = twoDigits(duration.inHours);
     final minutes = twoDigits(duration.inMinutes.remainder(60));
     final seconds = twoDigits(duration.inSeconds.remainder(60));
-    return duration.inHours > 0 ? "$hours:$minutes:$seconds" : "$minutes:$seconds";
+
+    return duration.inHours > 0
+        ? "$hours:$minutes:$seconds"
+        : "$minutes:$seconds";
   }
 
   String get formattedDistance {
     if (_distanceMeters < 1000) {
       return "${_distanceMeters.toStringAsFixed(0)} m";
     } else {
-      return "${(_distanceMeters / 1000).toStringAsFixed(1)} km";
+      return "${(_distanceMeters / 1000).toStringAsFixed(2)} km";
     }
   }
 
@@ -62,7 +82,7 @@ class WorkoutTrackingProvider extends ChangeNotifier {
     return "--";
   }
 
-  bool get canFinish => _workoutPhase == WorkoutPhase.active;
+  // WORKOUT CONTROL
 
   Future<void> startWorkout() async {
     _isLoadingLocation = true;
@@ -73,15 +93,13 @@ class WorkoutTrackingProvider extends ChangeNotifier {
       final position = await _locationService.getCurrentPosition();
       _startPosition = position;
       _currentPosition = position;
+      _routePoints = [position];
       _startTime = DateTime.now();
       _elapsedSeconds = 0;
       _workoutPhase = WorkoutPhase.active;
 
-      _workoutTimer?.cancel();
-      _workoutTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-        _elapsedSeconds++;
-        notifyListeners();
-      });
+      _startElapsedTimer();
+      _startRoutePolling();
     } catch (e) {
       _errorMessage = e.toString().replaceFirst('Exception: ', '');
       _workoutPhase = WorkoutPhase.idle;
@@ -91,9 +109,44 @@ class WorkoutTrackingProvider extends ChangeNotifier {
     }
   }
 
+  void _startElapsedTimer() {
+    _workoutTimer?.cancel();
+    _workoutTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+      _elapsedSeconds++;
+      notifyListeners();
+    });
+  }
+
+  void _startRoutePolling() {
+    _routeTimer?.cancel();
+    _routeTimer = Timer.periodic(const Duration(seconds: 10), (_) async {
+      if (_workoutPhase != WorkoutPhase.active) return;
+
+      try {
+        final position = await _locationService.getCurrentPosition();
+        if (_routePoints.isNotEmpty) {
+          final last = _routePoints.last;
+          final distance = _locationService.calculateDistance(
+            last.latitude,
+            last.longitude,
+            position.latitude,
+            position.longitude,
+          );
+          if (distance < 2) return;
+        }
+        _routePoints.add(position);
+        _currentPosition = position;
+        notifyListeners();
+      } catch (e) {
+        if (kDebugMode) {
+          print("GPS skipped: $e");
+        }
+      }
+    });
+  }
+
   Future<void> updateLocation() async {
     if (_workoutPhase != WorkoutPhase.active) return;
-
     try {
       final position = await _locationService.getCurrentPosition();
       _currentPosition = position;
@@ -111,22 +164,17 @@ class WorkoutTrackingProvider extends ChangeNotifier {
     notifyListeners();
 
     _workoutTimer?.cancel();
+    _routeTimer?.cancel();
 
     try {
       final position = await _locationService.getCurrentPosition();
       _endPosition = position;
-      if (_startPosition != null && _endPosition != null) {
-        _distanceMeters = _locationService.calculateDistance(
-          _startPosition!.latitude,
-          _startPosition!.longitude,
-          _endPosition!.latitude,
-          _endPosition!.longitude,
-        );
-      }
+      _routePoints.add(position);
+      _distanceMeters = calculateRouteDistance();
       _workoutPhase = WorkoutPhase.finished;
     } catch (e) {
       _errorMessage = e.toString().replaceFirst('Exception: ', '');
-      // Still finish the workout so the user sees their time
+      _distanceMeters = calculateRouteDistance();
       _workoutPhase = WorkoutPhase.finished;
     } finally {
       _isLoadingLocation = false;
@@ -136,10 +184,12 @@ class WorkoutTrackingProvider extends ChangeNotifier {
 
   void resetWorkout() {
     _workoutTimer?.cancel();
+    _routeTimer?.cancel();
     _workoutPhase = WorkoutPhase.idle;
     _startPosition = null;
     _endPosition = null;
     _currentPosition = null;
+    _routePoints = [];
     _distanceMeters = 0.0;
     _startTime = null;
     _elapsedSeconds = 0;
@@ -148,9 +198,40 @@ class WorkoutTrackingProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  // DISTANCE CALCULATIONS
+
+  double calculateRouteDistance() {
+    if (_routePoints.length < 2) return 0;
+    double total = 0;
+    for (int i = 0; i < _routePoints.length - 1; i++) {
+      final p1 = _routePoints[i];
+      final p2 = _routePoints[i + 1];
+      total += _locationService.calculateDistance(
+        p1.latitude,
+        p1.longitude,
+        p2.latitude,
+        p2.longitude,
+      );
+    }
+    return total;
+  }
+
+  double calculateStraightDistance() {
+    if (_routePoints.length < 2) return 0;
+    final start = _routePoints.first;
+    final end = _routePoints.last;
+    return _locationService.calculateDistance(
+      start.latitude,
+      start.longitude,
+      end.latitude,
+      end.longitude,
+    );
+  }
+
   @override
   void dispose() {
     _workoutTimer?.cancel();
+    _routeTimer?.cancel();
     super.dispose();
   }
 }

@@ -9,10 +9,9 @@ import 'package:fitness_tracker/presentation/screens/routine_summary_screen.dart
 import 'package:fitness_tracker/presentation/screens/dashboard_screen.dart';
 import 'package:fitness_tracker/presentation/screens/main_navigation_screen.dart';
 import 'package:fitness_tracker/presentation/screens/exercise_search_screen.dart';
+import 'package:fitness_tracker/presentation/screens/outdoor_workout_screen.dart';
 
-// ============================================================
 // TYPE-SAFE ARGUMENT CLASSES
-// ============================================================
 
 class ExerciseListArgs {
   final String categoryName;
@@ -56,7 +55,8 @@ enum AppRoute<T> {
   addExercise,
   browseExercises,
   routineSummary,
-  exerciseSearch;
+  exerciseSearch,
+  outdoorWorkout;
 
   MaterialPageRoute route(T args) {
     switch (this) {
@@ -122,13 +122,16 @@ enum AppRoute<T> {
           builder: (_) => const ExerciseSearchScreen(),
           settings: const RouteSettings(name: 'exerciseSearch'),
         );
+      case AppRoute.outdoorWorkout:
+        return MaterialPageRoute(
+          builder: (_) => const OutdoorWorkoutScreen(),
+          settings: const RouteSettings(name: 'outdoorWorkout'),
+        );
     }
   }
 }
 
-// ============================================================
 // NAVIGATOR EXTENSION
-// ============================================================
 
 extension NavigatorRouterExtension on BuildContext {
   void pushRoute<T>(AppRoute<T> route, T args) {
