@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../domain/workout_tracking_provider.dart';
+import '../../data/notification_service.dart';
 
 class OutdoorWorkoutScreen extends StatelessWidget {
   const OutdoorWorkoutScreen({super.key});
@@ -125,7 +126,22 @@ class OutdoorWorkoutScreen extends StatelessWidget {
             width: double.infinity,
             height: 60,
             child: ElevatedButton(
-              onPressed: provider.isLoadingLocation ? null : () => provider.finishWorkout(),
+              onPressed: provider.isLoadingLocation ? null : () async {
+                final duration = provider.elapsedDuration;
+                final distanceKm = provider.totalDistance / 1000;
+                final pace = provider.formattedPace;
+                
+                await provider.finishWorkout();
+                
+                if (context.mounted) {
+                  context.read<NotificationService>().showWorkoutCompleteAlert(
+                    workoutName: "Outdoor Run",
+                    distanceKm: distanceKm,
+                    duration: duration,
+                    pace: pace,
+                  );
+                }
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.redAccent,
                 foregroundColor: Colors.white,

@@ -6,15 +6,37 @@ class AuthProvider extends ChangeNotifier {
 
   bool _isLoading = false;
   String? _errorMessage;
+  bool _sessionExpired = false;
 
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
   bool get hasError => _errorMessage != null;
+  bool get sessionExpired => _sessionExpired;
 
   String? get userEmail => _authService.currentUser?.email;
   String? get userId => _authService.currentUser?.uid;
+  DateTime? get lastSignInTime => _authService.currentUser?.metadata.lastSignInTime;
 
-  AuthProvider(this._authService);
+  AuthProvider(this._authService) {
+    _checkSession();
+  }
+
+  Future<void> _checkSession() async {
+    final user = _authService.currentUser;
+    if (user != null) {
+      try {
+        await user.reload();
+      } catch (e) {
+        _sessionExpired = true;
+        await logout();
+      }
+    }
+  }
+
+  void clearSessionError() {
+    _sessionExpired = false;
+    notifyListeners();
+  }
 
   void clearError() {
     if (_errorMessage != null) {
@@ -26,6 +48,7 @@ class AuthProvider extends ChangeNotifier {
   Future<bool> login(String email, String password) async {
     _isLoading = true;
     _errorMessage = null;
+    _sessionExpired = false;
     notifyListeners();
 
     try {
@@ -50,7 +73,7 @@ class AuthProvider extends ChangeNotifier {
       return true;
     } catch (e) {
       _errorMessage = e.toString().replaceFirst("Exception: ", "");
-      return false; // Return false on failure
+      return false;
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -69,7 +92,7 @@ class AuthProvider extends ChangeNotifier {
 
     try {
       await _authService.resetPassword(email);
-      return true; // Added return true for success
+      return true;
     } catch (e) {
       _errorMessage = e.toString().replaceFirst("Exception: ", "");
       return false;

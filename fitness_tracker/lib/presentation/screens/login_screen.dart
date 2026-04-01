@@ -19,6 +19,23 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _obscurePassword = true;
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final auth = context.read<AuthProvider>();
+      if (auth.sessionExpired) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Your session has expired. Please sign in again.'),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
+        auth.clearSessionError();
+      }
+    });
+  }
+
+  @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
@@ -55,7 +72,6 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // --- App Logo / Header ---
                 Icon(
                   Icons.fitness_center,
                   size: 80,
@@ -77,7 +93,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 32),
 
-                // --- Error Message ---
                 Consumer<AuthProvider>(
                   builder: (context, auth, child) {
                     if (auth.hasError) {
@@ -109,12 +124,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   },
                 ),
 
-                // --- Form ---
                 Form(
                   key: _formKey,
                   child: Column(
                     children: [
-                      // Email Field
                       TextFormField(
                         controller: _emailController,
                         decoration: const InputDecoration(
@@ -139,7 +152,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       const SizedBox(height: 16),
 
-                      // Password Field
                       TextFormField(
                         controller: _passwordController,
                         decoration: InputDecoration(
@@ -178,7 +190,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       const SizedBox(height: 24),
 
-                      // --- Submit Button ---
                       Consumer<AuthProvider>(
                         builder: (context, auth, child) {
                           return SizedBox(
@@ -212,7 +223,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 const SizedBox(height: 16),
 
-                // --- Toggle Login / Register ---
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
