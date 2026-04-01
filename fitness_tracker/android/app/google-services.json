@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "213919017926",
+    "project_id": "fitness-tracker-bitcube",
+    "storage_bucket": "fitness-tracker-bitcube.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:213919017926:android:6d0b29dda6dba7462920c7",
+        "android_client_info": {
+          "package_name": "com.example.fitness_tracker"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCS9Ju5ooYepkhwgbbT3a2Ei9aZEPOujcw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
