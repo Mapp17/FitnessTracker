@@ -17,8 +17,27 @@ class AuthProvider extends ChangeNotifier {
   AuthProvider(this._authService);
 
   void clearError() {
+    if (_errorMessage != null) {
+      _errorMessage = null;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> login(String email, String password) async {
+    _isLoading = true;
     _errorMessage = null;
     notifyListeners();
+
+    try {
+      await _authService.login(email, password);
+      return true;
+    } catch (e) {
+      _errorMessage = e.toString().replaceFirst("Exception: ", "");
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
   }
 
   Future<bool> register(String email, String password) async {
@@ -31,6 +50,7 @@ class AuthProvider extends ChangeNotifier {
       return true;
     } catch (e) {
       _errorMessage = e.toString().replaceFirst("Exception: ", "");
+      return false; // Return false on failure
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -39,17 +59,20 @@ class AuthProvider extends ChangeNotifier {
 
   Future<void> logout() async {
     await _authService.logout();
+    notifyListeners();
   }
 
   Future<bool> resetPassword(String email) async {
-    _isLoading =  true;
+    _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
       await _authService.resetPassword(email);
+      return true; // Added return true for success
     } catch (e) {
       _errorMessage = e.toString().replaceFirst("Exception: ", "");
+      return false;
     } finally {
       _isLoading = false;
       notifyListeners();
