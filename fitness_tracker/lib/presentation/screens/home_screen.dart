@@ -1,19 +1,50 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../app_router.dart';
-import '../../domain/routine_provider.dart';
 import '../../domain/exercise_provider.dart';
-import '../../domain/profile_provider.dart';
+import '../../domain/auth_provider.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
+  void _showLogoutDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: const Text('Sign Out'),
+          content: const Text(
+              'Are you sure you want to sign out? You will need to log in again to access your dashboard.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+                context.read<AuthProvider>().logout();
+              },
+              child: const Text(
+                'Sign Out',
+                style: TextStyle(color: Colors.redAccent),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Access categories from ExerciseProvider
+    // Access providers
     final categories = context.watch<ExerciseProvider>().categories;
-    // Access profile from ProfileProvider
-    final profile = context.watch<ProfileProvider>().profile;
+    final auth = context.watch<AuthProvider>();
+
+    final greeting = auth.userEmail != null
+        ? 'Welcome, ${auth.userEmail!.split('@')[0]}!'
+        : 'Welcome!';
 
     return Scaffold(
       backgroundColor: Colors.grey[900],
@@ -35,6 +66,36 @@ class HomeScreen extends StatelessWidget {
             onPressed: () => context.pushRouteNoArgs(AppRoute.exerciseSearch),
             tooltip: 'Search Online Exercises',
           ),
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.more_vert, color: Colors.white),
+            onSelected: (value) {
+              if (value == 'logout') {
+                _showLogoutDialog(context);
+              }
+            },
+            itemBuilder: (BuildContext context) => [
+              const PopupMenuItem<String>(
+                value: 'settings',
+                child: Row(
+                  children: [
+                    Icon(Icons.settings, size: 20),
+                    SizedBox(width: 8),
+                    Text('Settings'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem<String>(
+                value: 'logout',
+                child: Row(
+                  children: [
+                    Icon(Icons.logout, size: 20, color: Colors.redAccent),
+                    SizedBox(width: 8),
+                    Text('Sign Out', style: TextStyle(color: Colors.redAccent)),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ],
       ),
       body: SingleChildScrollView(
@@ -44,7 +105,7 @@ class HomeScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Hello, ${profile.name}!",
+                greeting,
                 style: TextStyle(
                   color: Colors.grey[400],
                   fontStyle: FontStyle.italic,
@@ -107,7 +168,8 @@ class HomeScreen extends StatelessWidget {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
                         foregroundColor: Colors.deepOrange,
-                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 24, vertical: 12),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
                         ),
@@ -146,11 +208,12 @@ class HomeScreen extends StatelessWidget {
                   onTap: () {
                     context.pushRouteNoArgs(AppRoute.outdoorWorkout);
                   },
-                  child: Padding(
-                    padding: const EdgeInsets.all(20),
+                  child: const Padding(
+                    padding: EdgeInsets.all(20),
                     child: Row(
-                      children: const [
-                        Icon(Icons.directions_run, color: Colors.white, size: 32),
+                      children: [
+                        Icon(Icons.directions_run,
+                            color: Colors.white, size: 32),
                         SizedBox(width: 16),
                         Expanded(
                           child: Text(
@@ -181,7 +244,8 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ),
                   TextButton(
-                    onPressed: () => context.pushRouteNoArgs(AppRoute.browseExercises),
+                    onPressed: () =>
+                        context.pushRouteNoArgs(AppRoute.browseExercises),
                     child: const Text("View All"),
                   ),
                 ],
@@ -214,7 +278,8 @@ class HomeScreen extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: Colors.grey[850],
                           borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: Colors.grey[800]!, width: 1),
+                          border:
+                              Border.all(color: Colors.grey[800]!, width: 1),
                         ),
                         child: InkWell(
                           onTap: () {

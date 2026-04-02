@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../domain/routine_provider.dart';
 import '../../app_router.dart';
+import '../../data/notification_service.dart';
 
 class RoutineSummaryScreen extends StatelessWidget {
   const RoutineSummaryScreen({super.key});
@@ -18,6 +19,12 @@ class RoutineSummaryScreen extends StatelessWidget {
         backgroundColor: Colors.black,
         centerTitle: true,
         actions: [
+          if (routine.isNotEmpty)
+            IconButton(
+              icon: const Icon(Icons.check_circle, color: Colors.greenAccent),
+              onPressed: () => _showFinishConfirmation(context, routineProvider),
+              tooltip: 'Finish Routine',
+            ),
           if (routine.isNotEmpty)
             IconButton(
               icon: const Icon(Icons.delete_sweep, color: Colors.redAccent),
@@ -216,6 +223,35 @@ class RoutineSummaryScreen extends StatelessWidget {
               Navigator.pop(context);
             },
             child: const Text("CLEAR", style: TextStyle(color: Colors.redAccent)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showFinishConfirmation(BuildContext context, RoutineProvider provider) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: Colors.grey[850],
+        title: const Text("Finish Routine?", style: TextStyle(color: Colors.white)),
+        content: const Text("Great job! Ready to log your workout?", style: TextStyle(color: Colors.grey)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text("CANCEL"),
+          ),
+          TextButton(
+            onPressed: () {
+              final stats = "Sets: ${provider.totalSets}, Volume: ${provider.totalVolume.toStringAsFixed(0)}kg";
+              context.read<NotificationService>().showWorkoutCompleteAlert(
+                workoutName: "Daily Routine",
+                stats: stats,
+              );
+              provider.clearRoutine();
+              Navigator.pop(dialogContext);
+            },
+            child: const Text("FINISH", style: TextStyle(color: Colors.greenAccent)),
           ),
         ],
       ),

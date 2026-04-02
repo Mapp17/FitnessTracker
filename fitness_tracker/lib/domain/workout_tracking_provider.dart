@@ -37,8 +37,10 @@ class WorkoutTrackingProvider extends ChangeNotifier {
   Position? get currentPosition => _currentPosition;
 
   double get distanceMeters => _distanceMeters;
+  double get totalDistance => _distanceMeters;
   DateTime? get startTime => _startTime;
   int get elapsedSeconds => _elapsedSeconds;
+  Duration get elapsedDuration => Duration(seconds: _elapsedSeconds);
 
   String? get errorMessage => _errorMessage;
   bool get isLoadingLocation => _isLoadingLocation;
