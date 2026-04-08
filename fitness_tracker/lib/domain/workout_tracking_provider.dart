@@ -126,25 +126,30 @@ class WorkoutTrackingProvider extends ChangeNotifier {
 
       try {
         final position = await _locationService.getCurrentPosition();
-        if (_routePoints.isNotEmpty) {
-          final last = _routePoints.last;
-          final distance = _locationService.calculateDistance(
-            last.latitude,
-            last.longitude,
-            position.latitude,
-            position.longitude,
-          );
-          if (distance < 2) return;
-        }
-        _routePoints.add(position);
-        _currentPosition = position;
-        notifyListeners();
+        _addRoutePoint(position);
       } catch (e) {
         if (kDebugMode) {
           print("GPS skipped: $e");
         }
       }
     });
+  }
+
+  void _addRoutePoint(Position position) {
+    if (_routePoints.isNotEmpty) {
+      final last = _routePoints.last;
+      final distance = _locationService.calculateDistance(
+        last.latitude,
+        last.longitude,
+        position.latitude,
+        position.longitude,
+      );
+      if (distance < 2) return;
+    }
+    _routePoints.add(position);
+    _currentPosition = position;
+    _distanceMeters = calculateRouteDistance();
+    notifyListeners();
   }
 
   Future<void> updateLocation() async {
@@ -198,6 +203,31 @@ class WorkoutTrackingProvider extends ChangeNotifier {
     _errorMessage = null;
     _isLoadingLocation = false;
     notifyListeners();
+  }
+
+  // SIMULATION FOR TESTING
+
+  void simulateMovement() {
+    if (_workoutPhase != WorkoutPhase.active) return;
+
+    final last = _routePoints.isNotEmpty ? _routePoints.last : _currentPosition;
+    if (last == null) return;
+
+    // Simulate moving ~500 meters
+    final newPos = Position(
+      latitude: last.latitude + 0.005,
+      longitude: last.longitude + 0.005,
+      timestamp: DateTime.now(),
+      accuracy: 1.0,
+      altitude: 0.0,
+      heading: 0.0,
+      speed: 5.0,
+      speedAccuracy: 0.0,
+      altitudeAccuracy: 0.0,
+      headingAccuracy: 0.0,
+    );
+
+    _addRoutePoint(newPos);
   }
 
   // DISTANCE CALCULATIONS

@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class NotificationService {
@@ -23,6 +24,15 @@ class NotificationService {
     );
 
     await _plugin.initialize(initializationSettings);
+
+    // Request permission for Android 13+
+    if (Platform.isAndroid) {
+      await _plugin
+          .resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin>()
+          ?.requestNotificationsPermission();
+    }
+
     _isInitialized = true;
   }
 
@@ -34,9 +44,7 @@ class NotificationService {
     String? stats,
   }) async {
     String title = 'Workout Complete!';
-    String body = stats != null 
-        ? 'You crushed $workoutName! $stats' 
-        : '$workoutName complete! Keep the streak alive.';
+    String body = stats ?? '$workoutName complete! Keep the streak alive.';
 
     // Intelligent content logic
     if (distanceKm != null && duration != null) {
@@ -56,8 +64,10 @@ class NotificationService {
         AndroidNotificationDetails(
       'workout_complete',
       'Workout Completion',
+      channelDescription: 'Notifications for completed workouts',
       importance: Importance.max,
       priority: Priority.high,
+      showWhen: true,
     );
 
     const NotificationDetails platformChannelSpecifics =

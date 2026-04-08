@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../domain/workout_tracking_provider.dart';
 import '../../data/notification_service.dart';
+import '../widgets/route_printer.dart';
 
 class OutdoorWorkoutScreen extends StatelessWidget {
   const OutdoorWorkoutScreen({super.key});
@@ -81,47 +82,92 @@ class OutdoorWorkoutScreen extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(24.0),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text(
-            "ELAPSED TIME",
-            style: TextStyle(color: Colors.grey, letterSpacing: 1.5, fontWeight: FontWeight.bold),
-          ),
-          Text(
-            provider.formattedTime,
-            style: const TextStyle(color: Colors.white, fontSize: 80, fontWeight: FontWeight.bold),
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 20),
+                  const Text(
+                    "ELAPSED TIME",
+                    style: TextStyle(color: Colors.grey, letterSpacing: 1.5, fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    provider.formattedTime,
+                    style: const TextStyle(color: Colors.white, fontSize: 80, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 20),
+                  
+                  if (provider.routePoints.length >= 2)
+                    Container(
+                      height: 200,
+                      width: double.infinity,
+                      margin: const EdgeInsets.only(bottom: 20),
+                      decoration: BoxDecoration(
+                        color: Colors.black45,
+                        borderRadius: BorderRadius.circular(15),
+                        border: Border.all(color: Colors.grey[800]!),
+                      ),
+                      child: CustomPaint(
+                        painter: RoutePainter(provider.routePoints),
+                      ),
+                    ),
+
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[850],
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.my_location, size: 16, color: Colors.orangeAccent),
+                        const SizedBox(width: 8),
+                        Text(
+                          "Lat: ${provider.currentPosition?.latitude.toStringAsFixed(4) ?? '--'} | Lon: ${provider.currentPosition?.longitude.toStringAsFixed(4) ?? '--'}",
+                          style: const TextStyle(color: Colors.white70, fontFamily: 'monospace'),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  
+                  // Simulation Button for testing
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: () => provider.simulateMovement(),
+                      icon: const Icon(Icons.directions_run),
+                      label: const Text("SIMULATE DISTANCE"),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.greenAccent,
+                        side: const BorderSide(color: Colors.greenAccent),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: () => provider.updateLocation(),
+                      icon: const Icon(Icons.refresh),
+                      label: const Text("UPDATE LOCATION"),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.orangeAccent,
+                        side: const BorderSide(color: Colors.orangeAccent),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
           const SizedBox(height: 20),
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.grey[850],
-              borderRadius: BorderRadius.circular(15),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.my_location, size: 16, color: Colors.orangeAccent),
-                const SizedBox(width: 8),
-                Text(
-                  "Lat: ${provider.currentPosition?.latitude.toStringAsFixed(4) ?? '--'} | Lon: ${provider.currentPosition?.longitude.toStringAsFixed(4) ?? '--'}",
-                  style: const TextStyle(color: Colors.white70, fontFamily: 'monospace'),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 40),
-          OutlinedButton.icon(
-            onPressed: () => provider.updateLocation(),
-            icon: const Icon(Icons.refresh),
-            label: const Text("UPDATE LOCATION"),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: Colors.orangeAccent,
-              side: const BorderSide(color: Colors.orangeAccent),
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-            ),
-          ),
-          const Spacer(),
           SizedBox(
             width: double.infinity,
             height: 60,
@@ -168,7 +214,26 @@ class OutdoorWorkoutScreen extends StatelessWidget {
             "WORKOUT COMPLETE!",
             style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 20),
+          
+          if (provider.routePoints.length >= 2)
+            Container(
+              height: 250,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Colors.black45,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: Colors.grey[800]!),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: CustomPaint(
+                  painter: RoutePainter(provider.routePoints),
+                ),
+              ),
+            ),
+          
+          const SizedBox(height: 24),
           Card(
             color: Colors.grey[850],
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
