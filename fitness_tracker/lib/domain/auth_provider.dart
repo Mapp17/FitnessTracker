@@ -22,6 +22,9 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<void> _checkSession() async {
+    _isLoading = true; // Set loading while checking
+    notifyListeners();
+
     final user = _authService.currentUser;
     if (user != null) {
       try {
@@ -31,6 +34,9 @@ class AuthProvider extends ChangeNotifier {
         await logout();
       }
     }
+
+    _isLoading = false; // Check complete
+    notifyListeners();
   }
 
   void clearSessionError() {

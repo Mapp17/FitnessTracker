@@ -68,6 +68,15 @@ class FitnessTrackerApp extends StatelessWidget {
       ),
       home: Consumer<AuthProvider>(
         builder: (context, auth, _) {
+          // If the app is still checking for a persisted session
+          if (auth.isLoading) {
+            return const Scaffold(
+              body: Center(
+                child: CircularProgressIndicator(color: Colors.orangeAccent),
+              ),
+            );
+          }
+
           return auth.userId != null
               ? const MainNavigationScreen()
               : const LoginScreen();
